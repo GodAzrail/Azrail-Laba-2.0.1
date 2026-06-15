@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block page_title %}Настройки подключения{% endblock %}
+
+{% block content %}
+<style>
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 900px) { .settings-grid { grid-template-columns: 1fr; } }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; font-weight: 600; }
+    .form-group input { width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 6px; outline: none; font-family: monospace; }
+    .card-title { font-size: 16px; margin-top: 0; margin-bottom: 20px; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+</style>
+
+
+<div style="margin-bottom: 20px; background: rgba(56, 189, 248, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+    <div>
+        <h4 style="margin: 0 0 5px 0; color: var(--accent);"><i class="fa-solid fa-wand-magic-sparkles"></i> Умная синхронизация</h4>
+        <div style="font-size: 13px; color: var(--muted);">Панель сама прочитает конфиг сервера (awg0.conf) и подтянет актуальные IP, ключи и параметры DPI.</div>
+    </div>
+    <form method="POST" action="/admin/settings/sync" style="margin: 0;">
+        <button type="submit" style="background: var(--accent); color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;"><i class="fa-solid fa-cloud-arrow-down"></i> Стянуть с сервера</button>
+    </form>
+</div>
+
+<form method="POST" action="/admin/settings">
+    <div class="settings-grid">
+        <div class="ui-card">
+            <h3 class="card-title"><i class="fa-solid fa-server"></i> Основные настройки сервера</h3>
+            <div class="form-group">
+                <label>Endpoint (IP:Port сервера)</label>
+                <input type="text" name="SERVER_ENDPOINT" value="{{ settings.SERVER_ENDPOINT }}" required>
+            </div>
+            <div class="form-group">
+                <label>Public Key сервера (Ключ шифрования)</label>
+                <input type="text" name="SERVER_PUBLIC_KEY" value="{{ settings.SERVER_PUBLIC_KEY }}" required>
+            </div>
+            <div class="form-group">
+                <label>Preshared Key (Общий ключ)</label>
+                <input type="text" name="SERVER_PSK" value="{{ settings.SERVER_PSK }}" required>
+            </div>
+            <div class="form-group">
+                <label>Подсеть VPN (Например: 10.8.1)</label>
+                <input type="text" name="SERVER_SUBNET" value="{{ settings.SERVER_SUBNET }}" required>
+            </div>
+        </div>
+
+        <div class="ui-card">
+            <h3 class="card-title"><i class="fa-solid fa-shield-halved"></i> AmneziaWG Параметры (Маскировка DPI)</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                <div class="form-group"><label>Jc</label><input type="text" name="Jc" value="{{ settings.AMNEZIA_PARAMS.Jc }}"></div>
+                <div class="form-group"><label>Jmin</label><input type="text" name="Jmin" value="{{ settings.AMNEZIA_PARAMS.Jmin }}"></div>
+                <div class="form-group"><label>Jmax</label><input type="text" name="Jmax" value="{{ settings.AMNEZIA_PARAMS.Jmax }}"></div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px;">
+                <div class="form-group"><label>S1</label><input type="text" name="S1" value="{{ settings.AMNEZIA_PARAMS.S1 }}"></div>
+                <div class="form-group"><label>S2</label><input type="text" name="S2" value="{{ settings.AMNEZIA_PARAMS.S2 }}"></div>
+                <div class="form-group"><label>S3</label><input type="text" name="S3" value="{{ settings.AMNEZIA_PARAMS.S3 }}"></div>
+                <div class="form-group"><label>S4</label><input type="text" name="S4" value="{{ settings.AMNEZIA_PARAMS.S4 }}"></div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group"><label>H1</label><input type="text" name="H1" value="{{ settings.AMNEZIA_PARAMS.H1 }}"></div>
+                <div class="form-group"><label>H2</label><input type="text" name="H2" value="{{ settings.AMNEZIA_PARAMS.H2 }}"></div>
+                <div class="form-group"><label>H3</label><input type="text" name="H3" value="{{ settings.AMNEZIA_PARAMS.H3 }}"></div>
+                <div class="form-group"><label>H4</label><input type="text" name="H4" value="{{ settings.AMNEZIA_PARAMS.H4 }}"></div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
+                <div class="form-group"><label>I1</label><input type="text" name="I1" value="{{ settings.AMNEZIA_PARAMS.I1 }}"></div>
+                <div class="form-group"><label>I2</label><input type="text" name="I2" value="{{ settings.AMNEZIA_PARAMS.I2 }}"></div>
+                <div class="form-group"><label>I3</label><input type="text" name="I3" value="{{ settings.AMNEZIA_PARAMS.I3 }}"></div>
+                <div class="form-group"><label>I4</label><input type="text" name="I4" value="{{ settings.AMNEZIA_PARAMS.I4 }}"></div>
+                <div class="form-group"><label>I5</label><input type="text" name="I5" value="{{ settings.AMNEZIA_PARAMS.I5 }}"></div>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top: 20px; text-align: right;">
+        <button type="submit" style="background: var(--success); color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px;"><i class="fa-solid fa-floppy-disk"></i> Сохранить настройки</button>
+    </div>
+</form>
+{% endblock %}

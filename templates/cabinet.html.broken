@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+{% block page_title %}Личный кабинет VPN{% endblock %}
+{% block content %}
+<div id="newsCarousel" class="ui-card" style="margin-bottom: 20px; overflow: hidden; padding: 0;">
+    <div style="padding: 16px 20px; background: rgba(56, 189, 248, 0.05); border-bottom: 1px solid var(--border);">
+        <h3 style="margin: 0; font-size: 14px;"><i class="fa-solid fa-newspaper"></i> Новости и обновления</h3>
+    </div>
+    <div id="carouselContent" style="min-height: 120px; display: flex; align-items: center; justify-content: center;">
+        <div style="text-align: center; padding: 30px;"><i class="fa-solid fa-spinner fa-spin"></i> Загрузка новостей...</div>
+    </div>
+    <div style="padding: 12px; text-align: center; border-top: 1px solid var(--border);">
+        <button id="prevNews" style="background: #1e293b; border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin: 0 5px;">◀ Пред</button>
+        <span id="newsCounter" style="color: var(--muted); font-size: 12px; margin: 0 10px;"></span>
+        <button id="nextNews" style="background: #1e293b; border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin: 0 5px;">След ▶</button>
+    </div>
+</div>
+
+<div id="newsCarousel" class="ui-card" style="margin-bottom: 20px; overflow: hidden; padding: 0;">
+    <div style="padding: 16px 20px; background: rgba(56, 189, 248, 0.05); border-bottom: 1px solid var(--border);">
+        <h3 style="margin: 0; font-size: 14px;"><i class="fa-solid fa-newspaper"></i> Новости и обновления</h3>
+    </div>
+    <div id="carouselContent" style="min-height: 120px; display: flex; align-items: center; justify-content: center;">
+        <div style="text-align: center; padding: 30px;">
+            <i class="fa-solid fa-spinner fa-spin"></i> Загрузка новостей...
+        </div>
+    </div>
+    <div style="padding: 12px; text-align: center; border-top: 1px solid var(--border);">
+        <button id="prevNews" style="background: #1e293b; border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin: 0 5px;">◀ Пред</button>
+        <span id="newsCounter" style="color: var(--muted); font-size: 12px; margin: 0 10px;"></span>
+        <button id="nextNews" style="background: #1e293b; border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin: 0 5px;">След ▶</button>
+    </div>
+</div>
+
+<style>
+/* ТОЛЬКО для мобильных устройств - НЕ ЛОМАЕТ ПК */
+@media (max-width: 768px) {
+    .create-form {
+        flex-direction: column !important;
+    }
+    .create-form input,
+    .create-form button {
+        width: 100% !important;
+        margin: 4px 0 !important;
+    }
+    
+    /* Переопределяем только на мобильных */
+    .device-row {
+        display: block !important;
+        padding: 12px !important;
+    }
+    
+    .device-row > div {
+        margin-bottom: 8px !important;
+    }
+    
+    .device-row .device-traffic {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 15px !important;
+    }
+    
+    .device-row .device-actions {
+        display: flex !important;
+        gap: 8px !important;
+        margin-top: 10px !important;
+    }
+    
+    .device-actions button,
+    .device-actions a,
+    .device-actions form {
+        flex: 1 !important;
+        text-align: center !important;
+    }
+}
+</style>
+
+<div class="ui-card" style="padding: 16px 24px;">
+    <form class="create-form" action="/cabinet/create" method="POST" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <div style="color: var(--accent); font-size: 18px;"><i class="fa-solid fa-plus"></i></div>
+        <input type="text" name="name" placeholder="Название нового устройства (Phone, MacBook...)" required style="flex: 1; min-width: 200px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); padding: 10px 16px; border-radius: 8px; outline: none; font-size: 14px;">
+        <button type="submit" style="background: var(--accent); color: var(--bg); border: none; padding: 10px 24px; border-radius: 8px; font-weight: 700; cursor: pointer;">Создать профиль</button>
+    </form>
+</div>
+
+<div class="ui-card">
+    <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 16px; color: var(--text);">Ваши подключения ({{ clients|length }})</h3>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+        {% for client in clients %}
+        <div class="device-row" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr auto; gap: 15px; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border-radius: 8px; transition: background 0.2s;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button type="button" onclick="openRenameModal('{{ client.ip }}', '{{ client.name }}')" style="background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px;"><i class="fa-solid fa-pen"></i></button>
+                <div><div style="font-weight: 600; font-size: 15px;">{{ client.name }}</div><div style="font-size: 12px; color: var(--muted); font-family: monospace;">{{ client.ip }}</div></div>
+            </div>
+            <div>
+                {% if client.active %}<span style="color: var(--success); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px;"><div style="width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 8px var(--success);"></div> Онлайн</span>
+                {% else %}<span style="color: var(--muted); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px;"><div style="width: 8px; height: 8px; border-radius: 50%; background: var(--muted);"></div> Офлайн</span>{% endif %}
+            </div>
+            <div class="device-traffic" style="display: flex; flex-direction: column; font-size: 12px; font-family: monospace;">
+                <span style="color: var(--success);"><i class="fa-solid fa-arrow-down"></i> {{ client.rx }}</span>
+                <span style="color: var(--accent);"><i class="fa-solid fa-arrow-up"></i> {{ client.tx }}</span>
+            </div>
+            <div class="device-actions" style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button onclick="showQR('{{ client.qr }}')" style="background: #1e293b; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;"><i class="fa-solid fa-qrcode"></i> QR</button>
+                <a href="/cabinet/download/{{ client.ip }}" style="background: rgba(56, 189, 248, 0.1); color: var(--accent); text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600;">Скачать</a>
+                <form action="/cabinet/delete" method="POST" style="margin:0;" onsubmit="return confirm('Точно удалить {{ client.name }}?');">
+                    <input type="hidden" name="ip" value="{{ client.ip }}">
+                    <input type="hidden" name="pubkey" value="{{ client.pubkey }}">
+                    <button type="submit" style="background: transparent; color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 12px; border-radius: 6px; cursor: pointer;"><i class="fa-solid fa-trash"></i></button>
+                </form>
+            </div>
+        </div>
+        {% else %}<div style="text-align: center; padding: 40px; color: var(--muted);">У вас пока нет устройств. Создайте первое!</div>{% endfor %}
+    </div>
+</div>
+{% include "partials/modals.html" ignore missing %}
+{% endblock %}
+<script>
+let newsData = [];
+let currentNewsIndex = 0;
+
+function getNewsTypeClass(type) {
+    const classes = {
+        'info': { bg: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', icon: '📘' },
+        'success': { bg: 'rgba(16, 185, 129, 0.1)', color: '#10b981', icon: '✅' },
+        'warning': { bg: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', icon: '⚠️' },
+        'accent': { bg: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', icon: '🎨' }
+    };
+    return classes[type] || classes['info'];
+}
+
+function showNews(index) {
+    if (!newsData.length) return;
+    
+    const news = newsData[index];
+    const typeClass = getNewsTypeClass(news.type);
+    
+    const html = `
+        <div style="padding: 20px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                <div style="background: ${typeClass.bg}; color: ${typeClass.color}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                    ${typeClass.icon}
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 700; font-size: 16px; color: var(--text);">${escapeHtml(news.title)}</div>
+                    <div style="font-size: 11px; color: var(--muted);">${news.date}</div>
+                </div>
+            </div>
+            <div style="color: var(--text); line-height: 1.5; margin-bottom: 10px;">
+                ${escapeHtml(news.content)}
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('carouselContent').innerHTML = html;
+    document.getElementById('newsCounter').innerText = `${index + 1} / ${newsData.length}`;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function loadNews() {
+    fetch('/news')
+        .then(response => response.json())
+        .then(data => {
+            newsData = data;
+            if (newsData.length > 0) {
+                currentNewsIndex = 0;
+                showNews(0);
+            } else {
+                document.getElementById('carouselContent').innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: var(--muted);">
+                        <i class="fa-solid fa-newspaper"></i> Нет активных новостей
+                    </div>
+                `;
+                document.getElementById('newsCounter').innerText = '0 / 0';
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки новостей:', error);
+            document.getElementById('carouselContent').innerHTML = `
+                <div style="text-align: center; padding: 30px; color: var(--danger);">
+                    <i class="fa-solid fa-exclamation-triangle"></i> Ошибка загрузки новостей
+                </div>
+            `;
+        });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadNews();
+    
+    document.getElementById('prevNews').addEventListener('click', function() {
+        if (newsData.length > 0) {
+            currentNewsIndex = (currentNewsIndex - 1 + newsData.length) % newsData.length;
+            showNews(currentNewsIndex);
+        }
+    });
+    
+    document.getElementById('nextNews').addEventListener('click', function() {
+        if (newsData.length > 0) {
+            currentNewsIndex = (currentNewsIndex + 1) % newsData.length;
+            showNews(currentNewsIndex);
+        }
+    });
+});
+</script>
+{% endblock %}
+<script>
+let newsData = [];
+let currentNewsIndex = 0;
+
+function getNewsTypeClass(type) {
+    const classes = {
+        'info': { bg: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', icon: '📘' },
+        'success': { bg: 'rgba(16, 185, 129, 0.1)', color: '#10b981', icon: '✅' },
+        'warning': { bg: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', icon: '⚠️' },
+        'accent': { bg: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', icon: '🎨' }
+    };
+    return classes[type] || classes['info'];
+}
+
+function showNews(index) {
+    if (!newsData.length) return;
+    const news = newsData[index];
+    const typeClass = getNewsTypeClass(news.type);
+    const html = `<div style="padding: 20px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <div style="background: ${typeClass.bg}; color: ${typeClass.color}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">${typeClass.icon}</div>
+            <div style="flex: 1;"><div style="font-weight: 700; font-size: 16px;">${escapeHtml(news.title)}</div><div style="font-size: 11px; color: var(--muted);">${news.date}</div></div>
+        </div>
+        <div style="color: var(--text); line-height: 1.5;">${escapeHtml(news.content)}</div>
+    </div>`;
+    document.getElementById('carouselContent').innerHTML = html;
+    document.getElementById('newsCounter').innerText = `${index + 1} / ${newsData.length}`;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function loadNews() {
+    fetch('/news').then(r => r.json()).then(data => {
+        newsData = data;
+        if (newsData.length > 0) { currentNewsIndex = 0; showNews(0); }
+        else { document.getElementById('carouselContent').innerHTML = '<div style="text-align: center; padding: 30px; color: var(--muted);"><i class="fa-solid fa-newspaper"></i> Нет активных новостей</div>'; document.getElementById('newsCounter').innerText = '0 / 0'; }
+    }).catch(() => { document.getElementById('carouselContent').innerHTML = '<div style="text-align: center; padding: 30px; color: var(--danger);"><i class="fa-solid fa-exclamation-triangle"></i> Ошибка загрузки</div>'; });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadNews();
+    document.getElementById('prevNews').addEventListener('click', () => { if (newsData.length) { currentNewsIndex = (currentNewsIndex - 1 + newsData.length) % newsData.length; showNews(currentNewsIndex); } });
+    document.getElementById('nextNews').addEventListener('click', () => { if (newsData.length) { currentNewsIndex = (currentNewsIndex + 1) % newsData.length; showNews(currentNewsIndex); } });
+});
+</script>

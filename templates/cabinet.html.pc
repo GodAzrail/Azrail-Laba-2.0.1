@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block page_title %}Личный кабинет VPN{% endblock %}
+{% block content %}
+    <div class="ui-card" style="padding: 16px 24px;">
+        <form action="/cabinet/create" method="POST" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <div style="color: var(--accent); font-size: 18px;"><i class="fa-solid fa-plus"></i></div>
+            <input type="text" name="name" placeholder="Название нового устройства (Phone, MacBook...)" required style="background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); padding: 10px 16px; border-radius: 8px; flex: 1; min-width: 200px; outline: none; font-size: 14px;">
+            <button type="submit" style="background: var(--accent); color: var(--bg); border: none; padding: 10px 24px; border-radius: 8px; font-weight: 700; cursor: pointer;">Создать профиль</button>
+        </form>
+    </div>
+    <div class="ui-card">
+        <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 16px; color: var(--text);">Ваши подключения ({{ clients|length }})</h3>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            {% for client in clients %}
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr auto; gap: 15px; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border-radius: 8px; transition: background 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button type="button" onclick="openRenameModal('{{ client.ip }}', '{{ client.name }}')" style="background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px;"><i class="fa-solid fa-pen"></i></button>
+                        <div><div style="font-weight: 600; font-size: 15px;">{{ client.name }}</div><div style="font-size: 12px; color: var(--muted); font-family: monospace;">{{ client.ip }}</div></div>
+                    </div>
+                    <div>
+                        {% if client.active %}<span style="color: var(--success); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px;"><div style="width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 8px var(--success);"></div> Онлайн</span>
+                        {% else %}<span style="color: var(--muted); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px;"><div style="width: 8px; height: 8px; border-radius: 50%; background: var(--muted);"></div> Офлайн</span>{% endif %}
+                    </div>
+                    <div style="display: flex; flex-direction: column; font-size: 12px; font-family: monospace;">
+                        <span style="color: var(--success);"><i class="fa-solid fa-arrow-down"></i> {{ client.rx }}</span>
+                        <span style="color: var(--accent);"><i class="fa-solid fa-arrow-up"></i> {{ client.tx }}</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                        <button onclick="showQR('{{ client.qr }}')" style="background: #1e293b; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;"><i class="fa-solid fa-qrcode"></i> QR</button>
+                        <a href="/cabinet/download/{{ client.ip }}" style="background: rgba(56, 189, 248, 0.1); color: var(--accent); text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600;">Скачать</a>
+                        <form action="/cabinet/delete" method="POST" style="margin:0;" onsubmit="return confirm('Точно удалить {{ client.name }}?');">
+                            <input type="hidden" name="ip" value="{{ client.ip }}">
+                            <input type="hidden" name="pubkey" value="{{ client.pubkey }}">
+                            <button type="submit" style="background: transparent; color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 12px; border-radius: 6px; cursor: pointer;"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}<div style="text-align: center; padding: 40px; color: var(--muted);">У вас пока нет устройств. Создайте первое!</div>{% endfor %}
+        </div>
+    </div>
+    {% include "partials/modals.html" ignore missing %}
+{% endblock %}

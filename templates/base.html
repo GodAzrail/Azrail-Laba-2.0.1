@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>{% block title %}Amnezia Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_head %}{% endblock %}
+    <style>
+        :root { --bg: #060a12; --card: #0d1527; --border: #1b2640; --text: #f1f5f9; --muted: #64748b; --accent: #38bdf8; --accent-dim: rgba(56, 189, 248, 0.1); --success: #10b981; --danger: #ef4444; --sidebar-width: 260px; }
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        .sidebar { width: var(--sidebar-width); background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; height: 100vh; top: 0; left: 0; z-index: 100; transition: transform 0.3s ease; }
+        .sidebar-brand { padding: 24px 20px; font-size: 20px; font-weight: 800; letter-spacing: -0.5px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+        .sidebar-brand span { color: var(--accent); }
+        .sidebar-menu { padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; flex: 1; overflow-y: auto; }
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--muted); text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 600; transition: all 0.2s ease; }
+        .menu-item i { font-size: 16px; width: 20px; text-align: center; }
+        .menu-item:hover { color: var(--text); background: rgba(255, 255, 255, 0.03); }
+        .menu-item.active { color: var(--accent); background: var(--accent-dim); }
+        .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); background: rgba(0, 0, 0, 0.1); }
+        .user-info { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; }
+        .user-name { font-size: 14px; font-weight: 600; color: var(--text); }
+        .user-role { font-size: 11px; color: var(--accent); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+        .btn-logout { display: flex; align-items: center; gap: 8px; color: var(--danger); text-decoration: none; font-size: 13px; font-weight: 600; opacity: 0.8; transition: opacity 0.2s; }
+        .btn-logout:hover { opacity: 1; }
+        .main-layout { flex: 1; margin-left: var(--sidebar-width); display: flex; flex-direction: column; min-width: 0; }
+        .mobile-header { display: none; background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 90; }
+        .mobile-toggle { background: transparent; border: none; color: var(--text); font-size: 20px; cursor: pointer; padding: 4px; }
+        .content-container { padding: 40px; max-width: 100%; width: 100%; margin: 0 auto; box-sizing: border-box; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 16px; }
+        .page-title { font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.3px; }
+        .flash-container { background: var(--accent-dim); border: 1px solid var(--accent); color: var(--accent); padding: 14px 18px; border-radius: 10px; margin-bottom: 25px; font-size: 14px; line-height: 1.5; }
+        .ui-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2); margin-bottom: 25px; }
+        
+        @media (max-width: 992px) { 
+            body { flex-direction: column; } 
+            .sidebar { transform: translateX(-100%); box-shadow: 10px 0 30px rgba(0,0,0,0.5); } 
+            .sidebar.open { transform: translateX(0); } 
+            .main-layout { margin-left: 0; } 
+            .mobile-header { display: flex; } 
+            .content-container { padding: 20px 16px; } 
+            .page-header { flex-direction: column; align-items: flex-start; gap: 12px; } 
+        }
+        
+        @media (max-width: 768px) { 
+            .content-container { padding: 12px; } 
+            .page-title { font-size: 20px; } 
+            .ui-card { padding: 12px; overflow-x: visible; } 
+            .flash-container { padding: 10px 14px; font-size: 12px; } 
+        }
+        
+        @media (max-width: 480px) { 
+            .content-container { padding: 8px; } 
+            .page-title { font-size: 18px; } 
+        }
+        
+        /* Мобильные стили для карточек */
+        @media (max-width: 768px) {
+            .mobile-device-card,
+            .mobile-user-card {
+                display: block !important;
+                margin-bottom: 12px !important;
+            }
+            
+            .mobile-device-card .device-info,
+            .mobile-user-card .user-info {
+                margin-bottom: 8px !important;
+            }
+            
+            .mobile-traffic-row {
+                display: flex !important;
+                flex-direction: row !important;
+                gap: 16px !important;
+                margin: 8px 0 !important;
+            }
+            
+            .mobile-actions-row {
+                display: flex !important;
+                gap: 8px !important;
+                margin-top: 10px !important;
+            }
+            
+            .mobile-actions-row button,
+            .mobile-actions-row a,
+            .mobile-actions-row form {
+                flex: 1 !important;
+                text-align: center !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand"><i class="fa-solid fa-shield-halved" style="color: var(--accent);"></i> Azrail<span>Laba</span></div>
+        <nav class="sidebar-menu">
+            <a href="/cabinet" class="menu-item {% if request.path == '/cabinet' %}active{% endif %}"><i class="fa-solid fa-laptop"></i> Мои устройства</a>
+            
+            {% if user and user.role == 'admin' %}
+                <div style="font-size: 11px; color: var(--muted); text-transform: uppercase; margin: 20px 0 5px 16px; font-weight: 700; letter-spacing: 0.5px;">Администрирование</div>
+                <a href="/admin/stats" class="menu-item {% if request.path == '/admin/stats' %}active{% endif %}"><i class="fa-solid fa-chart-line"></i> Дашборд</a>
+                <a href="/admin/users" class="menu-item {% if request.path == '/admin/users' %}active{% endif %}"><i class="fa-solid fa-users"></i> Пользователи</a>
+            <a href="/admin/settings" class="menu-item {% if request.path == '/admin/settings' %}active{% endif %}"><i class="fa-solid fa-gear"></i> Настройки сети</a>
+                <a href="/inspect" class="menu-item {% if request.path == '/inspect' %}active{% endif %}"><i class="fa-solid fa-network-wired"></i> Все устройства</a>
+            {% endif %}
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <span class="user-name">👤 {{ user.username if user else 'Пользователь' }}</span>
+                <span class="user-role">{{ user.role if user else 'user' }}</span>
+            </div>
+            <a href="/logout" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Выйти из системы</a>
+        </div>
+    </div>
+    <div class="main-layout">
+        <div class="mobile-header">
+            <div class="sidebar-brand" style="padding: 0; border: none; font-size: 18px;">Azrail<span>Laba</span></div>
+            <button class="mobile-toggle" id="menuToggle"><i class="fa-solid fa-bars"></i></button>
+        </div>
+        <main class="content-container">
+            {% with messages = get_flashed_messages() %}{% if messages %}<div class="flash-container">{% for m in messages %}{{ m }}<br>{% endfor %}</div>{% endif %}{% endwith %}
+            <div class="page-header"><h1 class="page-title">{% block page_title %}Главная{% endblock %}</h1><div>{% block header_actions %}{% endblock %}</div></div>
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (menuToggle && sidebar) {
+            menuToggle.addEventListener('click', (e) => { sidebar.classList.toggle('open'); e.stopPropagation(); });
+            document.addEventListener('click', (e) => { if (!sidebar.contains(e.target) && sidebar.classList.contains('open')) { sidebar.classList.remove('open'); } });
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

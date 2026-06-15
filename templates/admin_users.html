@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block page_title %}Управление пользователями{% endblock %}
+{% block content %}
+<style>
+@media (max-width: 768px) {
+    .create-user-form {
+        flex-direction: column !important;
+    }
+    .create-user-form input,
+    .create-user-form select,
+    .create-user-form button {
+        width: 100% !important;
+    }
+    .user-row {
+        display: block !important;
+        padding: 12px !important;
+    }
+    .user-row > div {
+        margin-bottom: 8px !important;
+    }
+    .user-row .user-actions {
+        display: flex !important;
+        gap: 8px !important;
+        margin-top: 10px !important;
+    }
+    .user-actions a,
+    .user-actions form,
+    .user-actions span {
+        flex: 1 !important;
+        text-align: center !important;
+    }
+}
+</style>
+
+<div class="ui-card" style="padding: 16px 24px;">
+    <form class="create-user-form" action="/admin/users/create" method="POST" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <div style="color: var(--accent); font-size: 18px;"><i class="fa-solid fa-user-plus"></i></div>
+        <input type="text" name="username" placeholder="Логин (john123)" required style="flex: 1; min-width: 150px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 8px; outline: none;">
+        <input type="text" name="phone" placeholder="+7..." required style="flex: 1; min-width: 130px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 8px; outline: none;">
+        <input type="password" name="password" placeholder="Пароль" minlength="6" required style="flex: 1; min-width: 120px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 8px; outline: none;">
+        <select name="role" style="flex: 0.8; min-width: 120px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 8px; outline: none;">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+        </select>
+        <button type="submit" style="background: var(--accent); color: var(--bg); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer;">Создать</button>
+    </form>
+</div>
+
+<div class="ui-card">
+    <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 16px;">Список пользователей ({{ users|length }})</h3>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+        {% for uid, u in users.items() %}
+        <div class="user-row" style="display: grid; grid-template-columns: 2fr 1fr 1fr 2fr; gap: 15px; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+            <div><div style="font-weight: 600; font-size: 15px;">👤 {{ u.username }}</div><div style="font-size: 12px; color: var(--accent); margin-top: 3px;">{{ u.phone }}</div></div>
+            <div>{% if u.role == 'admin' %}<span style="background: rgba(56, 189, 248, 0.1); color: var(--accent); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;">Admin</span>{% else %}<span style="background: rgba(255, 255, 255, 0.05); color: var(--muted); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;">User</span>{% endif %}</div>
+            <div style="font-family: monospace; color: var(--muted); font-size: 13px;"><i class="fa-solid fa-laptop"></i> {{ config_counts.get(uid, 0) if config_counts else 0 }} шт.</div>
+            <div class="user-actions" style="display: flex; gap: 8px; justify-content: flex-end;">
+                <a href="/admin/user/clients/{{ uid }}" style="background: #1e293b; color: #fff; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 600;"><i class="fa-solid fa-list"></i> Конфиги</a>
+                <a href="/admin/users/login_as/{{ uid }}" style="background: #1e293b; color: #fff; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 600;"><i class="fa-solid fa-right-to-bracket"></i> Войти</a>
+                {% if uid|string != session.get('user_id')|string %}
+                    <form action="/admin/users/delete/{{ uid }}" method="POST" style="margin:0;" onsubmit="return confirm('Удалить {{ u.username }}?');">
+                        <button type="submit" style="background: transparent; color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 12px; border-radius: 6px; cursor: pointer;"><i class="fa-solid fa-trash"></i></button>
+                    </form>
+                {% else %}<span style="font-size: 11px; color: var(--success); padding: 8px;">Вы</span>{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

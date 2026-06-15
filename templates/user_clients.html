@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block page_title %}Конфиги: <span style="color: var(--accent);">{{ target_user.username if target_user else user_id }}</span>{% endblock %}
+{% block content %}
+    <div class="ui-card">
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            {% for client in clients %}
+                <div style="display: grid; grid-template-columns: 2fr 1.5fr 1fr 1.5fr auto; gap: 15px; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+                    <div style="font-weight: 600; font-size: 15px;"><i class="fa-solid fa-mobile-screen-button" style="color: var(--muted); margin-right: 8px;"></i> {{ client.name }}</div>
+                    <div style="font-size: 13px; color: var(--muted); font-family: monospace;">{{ client.ip }}</div>
+                    <div>
+                        {% if client.status == 'Онлайн' %}<span style="color: var(--success); font-size: 13px; font-weight: 600;"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> Онлайн</span>
+                        {% else %}<span style="color: var(--muted); font-size: 13px; font-weight: 600;"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> Офлайн</span>{% endif %}
+                    </div>
+                    <div style="display: flex; flex-direction: column; font-size: 12px; font-family: monospace;">
+                        <span style="color: var(--success);"><i class="fa-solid fa-arrow-down"></i> {{ client.rx }}</span>
+                        <span style="color: var(--accent);"><i class="fa-solid fa-arrow-up"></i> {{ client.tx }}</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                        <a href="/cabinet/download/{{ client.ip }}?qr=1" target="_blank" style="background: #1e293b; color: #fff; text-decoration: none; padding: 8px 12px; border-radius: 6px;"><i class="fa-solid fa-qrcode"></i> QR</a>
+                        <a href="/cabinet/download/{{ client.ip }}" style="background: var(--accent-dim); color: var(--accent); text-decoration: none; padding: 8px 12px; border-radius: 6px;"><i class="fa-solid fa-download"></i> Скачать</a>
+                    </div>
+                </div>
+            {% else %}<div style="text-align: center; padding: 30px; color: var(--muted);">У пользователя нет устройств.</div>{% endfor %}
+        </div>
+    </div>
+{% endblock %}
