@@ -2,50 +2,352 @@
 {% block page_title %}Личный кабинет VPN{% endblock %}
 {% block content %}
 <style>
-/* ТОЛЬКО для мобильных устройств */
-@media (max-width: 768px) {
-    .create-form {
-        flex-direction: column !important;
-    }
-    .create-form input,
-    .create-form button {
-        width: 100% !important;
-        margin: 4px 0 !important;
+/* Сетка для верхних блоков */
+.header-blocks {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+    max-width: 100%;
+}
+
+/* Стили карточки */
+.proxy-card {
+    background-color: #0b1120;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.proxy-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.proxy-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.proxy-icon {
+    background-color: rgba(42, 171, 238, 0.1);
+    color: #2AABEE;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.proxy-title {
+    color: #8B949E;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.proxy-badge {
+    border: 1px solid rgba(0, 184, 132, 0.3);
+    color: #00B884;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: rgba(0, 184, 132, 0.05);
+    flex-shrink: 0;
+}
+
+.proxy-row {
+    background-color: #111726;
+    border: 1px solid rgba(255,255,255,0.03);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    min-width: 0; 
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.proxy-label {
+    color: #6E7681;
+    font-size: 10px;
+    font-weight: 800;
+    width: 60px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0; 
+}
+
+.proxy-value {
+    color: #E6EDF3;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    width: 0; 
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    white-space: nowrap;     
+    margin-right: 12px;
+    min-width: 0;            
+}
+
+.proxy-copy {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #8B949E;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0; 
+}
+
+.proxy-copy:hover {
+    background: rgba(255,255,255,0.1);
+    color: #FFF;
+}
+
+.proxy-btn {
+    display: block;
+    width: 100%;
+    background-color: #2AABEE;
+    color: #FFFFFF;
+    text-align: center;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+    transition: background 0.2s;
+    box-sizing: border-box;
+}
+
+.proxy-btn:hover {
+    background-color: #2298D4;
+}
+
+/* Стили для первого блока (Инструкция) */
+.guide-badge {
+    color: #2AABEE;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.guide-badge-icon {
+    color: #8B949E;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.step-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.step-number {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: rgba(42, 171, 238, 0.08);
+    border: 1px solid rgba(42, 171, 238, 0.2);
+    color: #2AABEE;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.step-text {
+    font-size: 13px;
+    color: #E6EDF3;
+    line-height: 1.5;
+}
+
+.step-text b {
+    color: #FFF;
+    font-weight: 600;
+}
+
+/* Стили для заглушек */
+.dummy-card {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: var(--muted);
+    border: 1px dashed rgba(255,255,255,0.1);
+    min-height: 200px;
+}
+
+/* Кнопка спойлера (скрыта на ПК) */
+.mobile-toggle-btn {
+    display: none;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 992px) {
+    /* Показываем кнопку-слайдер */
+    .mobile-toggle-btn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #0b1120;
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 12px;
+        padding: 16px 20px;
+        color: #E6EDF3;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 24px;
+        transition: background-color 0.2s;
     }
     
-    .device-row {
-        display: block !important;
-        padding: 12px !important;
+    .mobile-toggle-btn:active {
+        background-color: #111726;
     }
     
-    .device-row > div {
-        margin-bottom: 8px !important;
+    .mobile-toggle-icon {
+        transition: transform 0.3s ease;
+        color: var(--muted);
+    }
+
+    /* Скрываем сетку блоков по умолчанию на мобилках */
+    .header-blocks { 
+        display: none; 
+        grid-template-columns: 1fr; /* В один столбец */
     }
     
-    .device-row .device-traffic {
-        display: flex !important;
-        flex-direction: row !important;
-        gap: 15px !important;
+    /* Класс, который добавляется через JS для показа блоков */
+    .header-blocks.expanded {
+        display: grid;
+    }
+
+    .proxy-card { padding: 16px; }
+    
+    .create-form { flex-direction: column !important; }
+    .create-form input, .create-form button {
+        width: 100% !important; margin: 4px 0 !important; min-width: 0 !important; box-sizing: border-box !important;
     }
     
-    .device-row .device-actions {
-        display: flex !important;
-        gap: 8px !important;
-        margin-top: 10px !important;
-    }
-    
-    .device-actions button,
-    .device-actions a,
-    .device-actions form {
-        flex: 1 !important;
-        text-align: center !important;
-    }
+    .device-row { display: block !important; padding: 12px !important; }
+    .device-row > div { margin-bottom: 8px !important; }
+    .device-row .device-traffic { display: flex !important; flex-direction: row !important; gap: 15px !important; }
+    .device-row .device-actions { display: flex !important; gap: 8px !important; margin-top: 10px !important; }
+    .device-actions button, .device-actions a, .device-actions form { flex: 1 !important; text-align: center !important; }
 }
 </style>
 
-<div class="ui-card" style="padding: 16px 24px;">
+<div class="mobile-toggle-btn" onclick="toggleMobileBlocks()">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-layer-group" style="color: #2AABEE;"></i>
+        <span>Инструкции и параметры прокси</span>
+    </div>
+    <i class="fa-solid fa-chevron-down mobile-toggle-icon"></i>
+</div>
+
+<div class="header-blocks" id="expandable-header-blocks">
+    
+    <div class="proxy-card" style="justify-content: flex-start;">
+        <div class="guide-badge">
+            <span class="guide-badge-icon">[?]</span> Дверь в Telegram, когда он заблокирован
+        </div>
+                        
+        <p style="margin: 0 0 20px 0; font-size: 13px; color: #8B949E; line-height: 1.5;">
+            MTProto-прокси встроен в сам Telegram. Это «обход» только для мессенджера — без установки приложений и без замедления остального трафика.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="step-item">
+                <div class="step-number">1</div>
+                <div class="step-text">Вставляете параметры из блока рядом или жмёте кнопку — Telegram подключит прокси <b>в один тап</b>.</div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">2</div>
+                <div class="step-text">Если кнопка не работает, скопируйте ссылку, отправьте её в <b>«Избранное»</b> внутри Telegram и нажмите на неё там.</div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">3</div>
+                <div class="step-text">После активации Telegram будет работать <b>без VPN</b>.</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="proxy-card">
+        <div class="proxy-header">
+            <div class="proxy-title-group">
+                <div class="proxy-icon"><i class="fa-brands fa-telegram"></i></div>
+                <div class="proxy-title">ПАРАМЕТРЫ ПОДКЛЮЧЕНИЯ</div>
+            </div>
+            <div class="proxy-badge">БЕСПЛАТНО</div>
+        </div>
+
+        <div class="proxy-row">
+            <span class="proxy-label">СЕРВЕР</span>
+            <span class="proxy-value">Azrail-laba.ru</span>
+            <button class="proxy-copy" onclick="copyProxyData(this, 'Azrail-laba.ru')"><i class="fa-regular fa-copy"></i></button>
+        </div>
+        
+        <div class="proxy-row">
+            <span class="proxy-label">ПОРТ</span>
+            <span class="proxy-value">443</span>
+            <button class="proxy-copy" onclick="copyProxyData(this, '443')"><i class="fa-regular fa-copy"></i></button>
+        </div>
+        
+        <div class="proxy-row">
+            <span class="proxy-label">КЛЮЧ</span>
+            <span class="proxy-value" title="ee66e48d04cdf5ea1195cca0bf81d679fa417a7261696c2d6c6162612e7275">ee66e48d04cdf5ea1195cca0bf81d679fa417a7261696c2d6c6162612e7275</span>
+            <button class="proxy-copy" onclick="copyProxyData(this, 'ee66e48d04cdf5ea1195cca0bf81d679fa417a7261696c2d6c6162612e7275')"><i class="fa-regular fa-copy"></i></button>
+        </div>
+
+        <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+            <a href="https://t.me/proxy?server=Azrail-laba.ru&port=443&secret=ee66e48d04cdf5ea1195cca0bf81d679fa417a7261696c2d6c6162612e7275" target="_blank" class="proxy-btn">
+                <i class="fa-solid fa-paper-plane" style="margin-right: 6px;"></i> Подключить в Telegram
+            </a>
+            <button onclick="copyFullProxyLink(this, 'https://t.me/proxy?server=Azrail-laba.ru&port=443&secret=ee66e48d04cdf5ea1195cca0bf81d679fa417a7261696c2d6c6162612e7275')" class="proxy-btn" style="background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">
+                <i class="fa-regular fa-copy" style="margin-right: 6px;"></i> Скопировать ссылку
+            </button>
+        </div>
+    </div>
+
+    <div class="proxy-card dummy-card">
+        <div style="font-size: 24px; margin-bottom: 10px;"><i class="fa-solid fa-headset"></i></div>
+        <div style="font-size: 14px; font-weight: 600; color: var(--text);">Техподдержка</div>
+        <div style="font-size: 12px; margin-top: 8px;">Возникли вопросы?<br>Напишите нам в чат-бот</div>
+    </div>
+
+</div>
+
+<div class="ui-card" style="padding: 16px 24px; margin-bottom: 24px;">
     <form class="create-form" action="/cabinet/create" method="POST" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-        <div style="color: var(--accent); font-size: 18px;"><i class="fa-solid fa-plus"></i></div>
         <input type="text" name="name" placeholder="Название нового устройства (Phone, MacBook...)" required style="flex: 1; min-width: 200px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); padding: 10px 16px; border-radius: 8px; outline: none; font-size: 14px;">
         <button type="submit" style="background: var(--accent); color: var(--bg); border: none; padding: 10px 24px; border-radius: 8px; font-weight: 700; cursor: pointer;">Создать профиль</button>
     </form>
@@ -83,6 +385,93 @@
         {% endfor %}
     </div>
 </div>
+
+<script>
+// Функция для мобильного слайдера (показать/скрыть верхние блоки)
+function toggleMobileBlocks() {
+    const blocks = document.getElementById('expandable-header-blocks');
+    const icon = document.querySelector('.mobile-toggle-icon');
+    
+    if (blocks.classList.contains('expanded')) {
+        blocks.classList.remove('expanded');
+        icon.style.transform = 'rotate(0deg)'; // Стрелочка вниз
+    } else {
+        blocks.classList.add('expanded');
+        icon.style.transform = 'rotate(180deg)'; // Стрелочка вверх
+    }
+}
+
+// Универсальная функция копирования с учетом жестких правил ПК-браузеров
+function copyToClipboard(text, onSuccess) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(onSuccess).catch(function(err) {
+            console.warn("Современный метод не сработал, пробуем старый...", err);
+            fallbackCopy(text, onSuccess);
+        });
+    } else {
+        fallbackCopy(text, onSuccess);
+    }
+}
+
+// Запасной метод через выделение текста в невидимом поле
+function fallbackCopy(text, onSuccess) {
+    try {
+        var tempInput = document.createElement("textarea");
+        tempInput.value = text;
+        
+        tempInput.style.position = "absolute";
+        tempInput.style.left = "-9999px";
+        tempInput.style.top = "-9999px";
+        document.body.appendChild(tempInput);
+        
+        tempInput.focus();
+        tempInput.select();
+        tempInput.setSelectionRange(0, 99999);
+        
+        var successful = document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        
+        if (successful) {
+            onSuccess();
+        } else {
+            window.prompt("Ваш браузер заблокировал автоматическое копирование. Нажмите Ctrl+C или скопируйте вручную:", text);
+        }
+    } catch (err) {
+        window.prompt("Ошибка копирования. Пожалуйста, скопируйте текст вручную:", text);
+    }
+}
+
+function copyProxyData(button, text) {
+    copyToClipboard(text, () => {
+        const icon = button.querySelector('i');
+        const originalClass = icon.className;
+        
+        icon.className = 'fa-solid fa-check';
+        icon.style.color = '#00B884';
+        
+        setTimeout(() => {
+            icon.className = originalClass;
+            icon.style.color = '';
+        }, 2000);
+    });
+}
+
+function copyFullProxyLink(button, link) {
+    copyToClipboard(link, () => {
+        const originalContent = button.innerHTML;
+        
+        button.innerHTML = '<i class="fa-solid fa-check" style="color: #00B884; margin-right: 6px;"></i> Ссылка скопирована!';
+        button.style.borderColor = '#00B884';
+        button.style.color = '#00B884';
+        
+        setTimeout(() => {
+            button.innerHTML = originalContent;
+            button.style.borderColor = '';
+            button.style.color = '';
+        }, 2500);
+    });
+}
+</script>
 
 {% include "partials/modals.html" ignore missing %}
 {% endblock %}
