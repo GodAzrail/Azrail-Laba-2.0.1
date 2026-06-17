@@ -7,7 +7,7 @@ PASSWORD = "220823"
 CONTAINER = "amnezia-awg2"
 CONF_PATH = "/opt/amnezia/awg/awg0.conf"
 
-DB_DIR = "/opt/Azrail-Laba"
+DB_DIR = "/opt/Azrail-Data"
 LOCAL_DB_PATH = os.path.join(DB_DIR, "custom_clients.txt")
 USERS_FILE = os.path.join(DB_DIR, "users.json")
 HISTORY_FILE = os.path.join(DB_DIR, "traffic_history.json")
