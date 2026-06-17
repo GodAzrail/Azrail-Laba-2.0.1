@@ -1,5 +1,24 @@
 {% extends "base.html" %}
-{% block page_title %}Личный кабинет VPN{% endblock %}
+{% block page_title %}Личный кабинет VPN
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var start = new Date().getTime();
+    fetch('/api/speedtest_download', { cache: 'no-store' })
+        .then(r => r.blob())
+        .then(b => {
+            var duration = (new Date().getTime() - start) / 1000;
+            if(duration > 0) {
+                var mbps = (b.size * 8 / duration / 1024 / 1024).toFixed(1);
+                var el = document.getElementById('speed-val');
+                if(el) el.innerText = '(' + mbps + ' Мбит/с)';
+            }
+        }).catch(e => {
+            var el = document.getElementById('speed-val');
+            if(el) el.innerText = '(ошибка)';
+        });
+});
+</script>
+{% endblock %}
 {% block content %}
 <style>
 /* Сетка для верхних блоков */
@@ -338,10 +357,42 @@
         </div>
     </div>
 
-    <div class="proxy-card dummy-card">
-        <div style="font-size: 24px; margin-bottom: 10px;"><i class="fa-solid fa-headset"></i></div>
-        <div style="font-size: 14px; font-weight: 600; color: var(--text);">Техподдержка</div>
-        <div style="font-size: 12px; margin-top: 8px;">Возникли вопросы?<br>Напишите нам в чат-бот</div>
+    <div class="proxy-card">
+        <div class="proxy-header">
+            <div class="proxy-title-group">
+                <div class="proxy-icon" style="background-color: rgba(42, 171, 238, 0.1); color: #2AABEE;"><i class="fa-solid fa-satellite-dish"></i></div>
+                <div class="proxy-title">СОСТОЯНИЕ СЕТИ</div>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div class="proxy-row" style="margin-bottom: 0;">
+                <span class="proxy-label" style="width: auto;">VPN ЯДРО</span>
+                <span class="proxy-value" style="text-align: right; margin-right: 0;">
+                    {% if vpn_online %}
+                        <span style="color: #00B884; font-weight: 700;">● ОНЛАЙН</span> <span style="color: #8B949E; font-size: 11px;">({{ ping_ms }})</span>
+                    {% else %}
+                        <span style="color: #EF4444; font-weight: 700;">● ОФЛАЙН</span>
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="proxy-row" style="margin-bottom: 0;">
+                <span class="proxy-label" style="width: auto;">ПРОКСИ</span>
+                <span class="proxy-value" style="text-align: right; margin-right: 0;">
+                    {% if vpn_online %}
+                        <span style="color: #2AABEE; font-weight: 700;">● ОНЛАЙН</span> <span style="color: #8B949E; font-size: 11px;"><span id="speed-val">(замер...)</span></span>
+                    {% else %}
+                        <span style="color: #EF4444; font-weight: 700;">● ОФЛАЙН</span>
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="proxy-row" style="margin-bottom: 0;">
+                <span class="proxy-label" style="width: auto;">СЕРВЕР</span>
+                <span class="proxy-value" style="text-align: right; margin-right: 0; color: #E6EDF3;">{{ request.host.split(':')[0] }}</span>
+            </div>
+        </div>
     </div>
 
 </div>
@@ -474,4 +525,23 @@ function copyFullProxyLink(button, link) {
 </script>
 
 {% include "partials/modals.html" ignore missing %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var start = new Date().getTime();
+    fetch('/api/speedtest_download', { cache: 'no-store' })
+        .then(r => r.blob())
+        .then(b => {
+            var duration = (new Date().getTime() - start) / 1000;
+            if(duration > 0) {
+                var mbps = (b.size * 8 / duration / 1024 / 1024).toFixed(1);
+                var el = document.getElementById('speed-val');
+                if(el) el.innerText = '(' + mbps + ' Мбит/с)';
+            }
+        }).catch(e => {
+            var el = document.getElementById('speed-val');
+            if(el) el.innerText = '(ошибка)';
+        });
+});
+</script>
 {% endblock %}

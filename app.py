@@ -119,7 +119,76 @@ def cabinet():
     all_clients = get_amnezia_data()
     username_map = {uid: u['username'] for uid, u in users.items()}
     display_clients = all_clients if current_user['role'] == 'admin' else [c for c in all_clients if c['user_id'] == session['user_id']]
-    return render_template('cabinet.html', user=current_user, clients=display_clients, all_users=users, username_map=username_map)
+    try:
+
+        import subprocess
+
+        status = subprocess.check_output(["sudo", "docker", "ps", "-f", "name=amnezia-awg2", "--format", "{{.Status}}"], text=True).strip()
+
+        vpn_online = "Up" in status
+
+    except:
+
+        vpn_online = False
+
+    
+
+    user_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+
+
+    
+
+    if user_ip and ',' in user_ip: user_ip = user_ip.split(',')[0].strip()
+
+
+    
+
+    ping_ms = 'н/д'
+
+
+    
+
+    if user_ip:
+
+
+    
+
+        try:
+
+
+    
+
+            import subprocess, re as regex
+
+
+    
+
+            ping_out = subprocess.check_output(['ping', '-c', '1', '-W', '1', user_ip], text=True)
+
+
+    
+
+            m = regex.search(r'time=([\d\.]+)\s*ms', ping_out)
+
+
+    
+
+            if m: ping_ms = f"{float(m.group(1)):.0f} мс"
+
+
+    
+
+        except:
+
+
+    
+
+            pass
+
+
+    
+
+    return render_template('cabinet.html', user=current_user, clients=display_clients, all_users=users, username_map=username_map, vpn_online=vpn_online, ping_ms=ping_ms)
 
 @app.route('/cabinet/create', methods=['POST'])
 @login_required
