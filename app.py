@@ -374,7 +374,7 @@ def inject_user():
 @admin_required
 def admin_settings():
     import json, subprocess
-    settings_path = "/opt/Azrail-Laba/settings.json"
+    settings_path = "/opt/Azrail-Data/settings.json"
     if request.method == 'POST':
         new_settings = {
             "SERVER_PUBLIC_KEY": request.form.get("SERVER_PUBLIC_KEY", "").strip(),
