@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 
 CONTAINER = "amnezia-awg2"
-DB_DIR = "/opt/my-amnezia-panel"
+DB_DIR = "/opt/Azrail-Data"
 HISTORY_FILE = os.path.join(DB_DIR, "traffic_history.json")
 
 def run_docker_cmd(cmd):
